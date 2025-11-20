@@ -1,14 +1,22 @@
 use clap::Parser;
-
 pub mod rurl_get;
+
+#[derive(Debug, Clone)]
+enum REQUEST_TYPE {
+    GET,
+    POST
+}
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Args {
-    #[arg(short, long)]
+    #[arg()]
     url: String,
 
-    #[arg(short, long)]
+    #[arg()]
+    req_type: REQUEST_TYPE, 
+
+    #[arg(short, long, default_value_t = String::from("{}"))]
     d: String,
 }
 
@@ -23,6 +31,5 @@ async fn main() {
     let res = rurl_get::get::get(a).await;
 
     println!("response ---- {}", res);
-
 
 }
