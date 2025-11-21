@@ -1,46 +1,41 @@
-use std::fmt;
-
 use clap::{Parser, ValueEnum};
+
 pub mod rurl_get;
 
 #[derive(Debug, Clone, ValueEnum)]
-enum REQUEST_TYPE {
-    GET,
-    POST
+enum RequestType {
+    #[value(alias = "GET", alias = "Get")]
+    get,
+
+    #[value(alias = "POST", alias = "Post")]
+    post,
 }
 
-impl fmt::Display for REQUEST_TYPE {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            REQUEST_TYPE::GET => write!(f, "GET"),
-            REQUEST_TYPE::POST => write!(f, "POST"),
-        }
-    }
-}
-
-#[derive(Parser, Debug)]
-#[command(version, about, long_about = None)]
+#[derive(Parser, Debug, Clone)]
 struct Args {
-    #[arg()]
+    #[arg(short = 'X', long = "method", value_enum, default_value_t = RequestType::get)]
+    method: RequestType,
+
+    #[arg(short, long)]
     url: String,
 
-    #[arg(default_value_t = REQUEST_TYPE::GET)]
-    req_type: REQUEST_TYPE, 
-
-    #[arg(default_value_t = String::from("{}"))] //short, long, 
-    d: String,
+    #[arg(short, long, default_value_t = String::from("{}"))]
+    data: String,
 }
 
 #[tokio::main]
 async fn main() {
     let args = Args::parse();
+    dbg!(&args);
 
-    println!("url {} , data {}", args.url, args.d);
+    match args.method {
+        RequestType::get => {
+            let result = rurl_get::get::get(args.url).await;   
+            print!("{}", result);         
+        },
+        RequestType::post => {
+            println!("method is POST--" )
 
-    let a = args.url;
-
-    let res = rurl_get::get::get(a).await;
-
-    println!("response ---- {}", res);
-
+        }
+    }
 }
